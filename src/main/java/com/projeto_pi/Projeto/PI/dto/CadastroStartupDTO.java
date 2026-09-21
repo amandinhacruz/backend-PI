@@ -1,37 +1,34 @@
-package com.projeto_pi.Projeto.PI.entity;
+package com.projeto_pi.Projeto.PI.dto;
 
-import jakarta.persistence.*;
+public class CadastroStartupDTO {
 
-@Entity
-@Table(name = "startups")
-public class Startup {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String email;
+    private String senha;
 
     private String nome;
     private String segmento;
     private String estagio;
-
-    @Column(length = 1000)
     private String necessidades;
-
-    @Column(length = 2000)
     private String pitch;
-
-    @Column(columnDefinition = "TEXT")
     private String canvas;
 
-    public Startup() {
+    public CadastroStartupDTO() {
     }
 
-    public Long getId() {
-        return id;
+    public String getEmail() {
+        return email;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public String getNome() {
