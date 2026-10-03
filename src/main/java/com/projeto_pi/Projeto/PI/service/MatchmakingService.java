@@ -46,6 +46,9 @@ public class MatchmakingService {
                     startup.getNome(),
                     investidor.getId(),
                     investidor.getTipo().name(),
+                    investidor.getAreasInteresse(),
+                    investidor.getEstagiosPref(),
+                    investidor.getDisponibilidade(),
                     pontuacao,
                     nivel
             );
@@ -69,7 +72,6 @@ public class MatchmakingService {
 
         int pontuacao = 0;
 
-        // Critério 1: segmento x área de interesse
         if (textoCompativel(
                 startup.getSegmento(),
                 investidor.getAreasInteresse())) {
@@ -77,7 +79,6 @@ public class MatchmakingService {
             pontuacao += 40;
         }
 
-        // Critério 2: estágio x preferência de estágio
         if (textoCompativel(
                 startup.getEstagio(),
                 investidor.getEstagiosPref())) {
@@ -85,7 +86,6 @@ public class MatchmakingService {
             pontuacao += 30;
         }
 
-        // Critério 3: necessidades x área de interesse
         if (textoCompativel(
                 startup.getNecessidades(),
                 investidor.getAreasInteresse())) {

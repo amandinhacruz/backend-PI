@@ -7,6 +7,9 @@ public class MatchResponseDTO {
 
     private Long investidorMentorId;
     private String tipoInvestidorMentor;
+    private String areasInteresse;
+    private String estagiosPref;
+    private String disponibilidade;
 
     private int pontuacao;
     private String nivelAfinidade;
@@ -19,6 +22,9 @@ public class MatchResponseDTO {
             String startupNome,
             Long investidorMentorId,
             String tipoInvestidorMentor,
+            String areasInteresse,
+            String estagiosPref,
+            String disponibilidade,
             int pontuacao,
             String nivelAfinidade) {
 
@@ -26,6 +32,9 @@ public class MatchResponseDTO {
         this.startupNome = startupNome;
         this.investidorMentorId = investidorMentorId;
         this.tipoInvestidorMentor = tipoInvestidorMentor;
+        this.areasInteresse = areasInteresse;
+        this.estagiosPref = estagiosPref;
+        this.disponibilidade = disponibilidade;
         this.pontuacao = pontuacao;
         this.nivelAfinidade = nivelAfinidade;
     }
@@ -44,6 +53,18 @@ public class MatchResponseDTO {
 
     public String getTipoInvestidorMentor() {
         return tipoInvestidorMentor;
+    }
+
+    public String getAreasInteresse() {
+        return areasInteresse;
+    }
+
+    public String getEstagiosPref() {
+        return estagiosPref;
+    }
+
+    public String getDisponibilidade() {
+        return disponibilidade;
     }
 
     public int getPontuacao() {
