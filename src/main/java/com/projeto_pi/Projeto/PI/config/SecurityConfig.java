@@ -45,7 +45,8 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/auth/cadastro/**",
-                                "/auth/login"
+                                "/auth/login",
+                                "/politica-privacidade"
                         ).permitAll()
 
                         .requestMatchers("/admin/**")

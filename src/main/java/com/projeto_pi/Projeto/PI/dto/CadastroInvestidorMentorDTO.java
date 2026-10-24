@@ -1,20 +1,19 @@
 package com.projeto_pi.Projeto.PI.dto;
 
 import com.projeto_pi.Projeto.PI.entity.TipoInvestidorMentor;
-
 import java.math.BigDecimal;
 
 public class CadastroInvestidorMentorDTO {
 
     private String email;
     private String senha;
-
     private TipoInvestidorMentor tipo;
     private String areasInteresse;
     private BigDecimal ticketMin;
     private BigDecimal ticketMax;
     private String estagiosPref;
     private String disponibilidade;
+    private Boolean consentimentoLGPD;
 
     public CadastroInvestidorMentorDTO() {
     }
@@ -81,5 +80,13 @@ public class CadastroInvestidorMentorDTO {
 
     public void setDisponibilidade(String disponibilidade) {
         this.disponibilidade = disponibilidade;
+    }
+
+    public Boolean getConsentimentoLGPD() {
+        return consentimentoLGPD;
+    }
+
+    public void setConsentimentoLGPD(Boolean consentimentoLGPD) {
+        this.consentimentoLGPD = consentimentoLGPD;
     }
 }

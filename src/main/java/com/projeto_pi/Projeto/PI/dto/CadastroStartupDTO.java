@@ -4,13 +4,13 @@ public class CadastroStartupDTO {
 
     private String email;
     private String senha;
-
     private String nome;
     private String segmento;
     private String estagio;
     private String necessidades;
     private String pitch;
     private String canvas;
+    private Boolean consentimentoLGPD;
 
     public CadastroStartupDTO() {
     }
@@ -77,5 +77,13 @@ public class CadastroStartupDTO {
 
     public void setCanvas(String canvas) {
         this.canvas = canvas;
+    }
+
+    public Boolean getConsentimentoLGPD() {
+        return consentimentoLGPD;
+    }
+
+    public void setConsentimentoLGPD(Boolean consentimentoLGPD) {
+        this.consentimentoLGPD = consentimentoLGPD;
     }
 }

@@ -1,5 +1,6 @@
 package com.projeto_pi.Projeto.PI.entity;
 
+import java.time.LocalDateTime;
 import jakarta.persistence.*;
 
 @Entity
@@ -25,6 +26,12 @@ public class Usuario {
     private StatusUsuario status;
 
     private Boolean consentiuEm;
+
+    @Column(name = "data_consentimento")
+    private LocalDateTime dataConsentimento;
+
+    @Column(name = "versao_politica_consentida", length = 20)
+    private String versaoPoliticaConsentida;
 
     @OneToOne
     @JoinColumn(name = "startup_id")
@@ -83,6 +90,22 @@ public class Usuario {
 
     public void setConsentiuEm(Boolean consentiuEm) {
         this.consentiuEm = consentiuEm;
+    }
+
+    public LocalDateTime getDataConsentimento() {
+        return dataConsentimento;
+    }
+
+    public void setDataConsentimento(LocalDateTime dataConsentimento) {
+        this.dataConsentimento = dataConsentimento;
+    }
+
+    public String getVersaoPoliticaConsentida() {
+        return versaoPoliticaConsentida;
+    }
+
+    public void setVersaoPoliticaConsentida(String versaoPoliticaConsentida) {
+        this.versaoPoliticaConsentida = versaoPoliticaConsentida;
     }
 
     public Startup getStartup() {
