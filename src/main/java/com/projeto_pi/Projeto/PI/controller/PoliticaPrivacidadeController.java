@@ -48,7 +48,7 @@ public class PoliticaPrivacidadeController {
                                 + "eliminação ou revogação do consentimento. Os pedidos "
                                 + "devem ser encaminhados ao responsável pelo projeto.",
 
-                        "Contato do responsável: amandaellem44@gmail.com"
+                        "Contato do responsável: amandaellem2023@gmail.com"
                 );
 
         return ResponseEntity.ok(politica);
