@@ -3,6 +3,8 @@ package com.projeto_pi.Projeto.PI.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import com.projeto_pi.Projeto.PI.config.StringCriptografadoConverter;
+import jakarta.persistence.Convert;
 
 @Entity
 @Table(name = "mensagens")
@@ -20,7 +22,8 @@ public class Mensagem {
     @JoinColumn(name = "destinatario_id", nullable = false)
     private Usuario destinatario;
 
-    @Column(nullable = false, length = 2000)
+    @Convert(converter = StringCriptografadoConverter.class)
+    @Column(nullable = false, length = 3000)
     private String conteudo;
 
     @Column(nullable = false)

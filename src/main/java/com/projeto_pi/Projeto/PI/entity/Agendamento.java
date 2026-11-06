@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import com.projeto_pi.Projeto.PI.config.StringCriptografadoConverter;
+import jakarta.persistence.Convert;
 
 @Entity
 @Table(name = "agendamentos")
@@ -27,7 +29,8 @@ public class Agendamento {
     @Column(nullable = false)
     private LocalTime horario;
 
-    @Column(nullable = false, length = 500)
+    @Convert(converter = StringCriptografadoConverter.class)
+    @Column(nullable = false, length = 800)
     private String assunto;
 
     @Enumerated(EnumType.STRING)

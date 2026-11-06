@@ -2,6 +2,9 @@ package com.projeto_pi.Projeto.PI.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import com.projeto_pi.Projeto.PI.config.StringCriptografadoConverter;
+import com.projeto_pi.Projeto.PI.config.BigDecimalCriptografadoConverter;
+import jakarta.persistence.Convert;
 
 @Entity
 @Table(name = "investidores_mentores")
@@ -14,16 +17,25 @@ public class InvestidorMentor {
     @Enumerated(EnumType.STRING)
     private TipoInvestidorMentor tipo;
 
-    @Column(length = 1000)
+    @Convert(converter = StringCriptografadoConverter.class)
+    @Column(columnDefinition = "TEXT")
     private String areasInteresse;
 
+
+    @Convert(converter = BigDecimalCriptografadoConverter.class)
+    @Column(columnDefinition = "TEXT")
     private BigDecimal ticketMin;
+
+    @Convert(converter = BigDecimalCriptografadoConverter.class)
+    @Column(columnDefinition = "TEXT")
     private BigDecimal ticketMax;
 
-    @Column(length = 1000)
+    @Convert(converter = StringCriptografadoConverter.class)
+    @Column(columnDefinition = "TEXT")
     private String estagiosPref;
 
-    @Column(length = 1000)
+    @Convert(converter = StringCriptografadoConverter.class)
+    @Column(columnDefinition = "TEXT")
     private String disponibilidade;
 
     public InvestidorMentor() {

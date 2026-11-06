@@ -1,6 +1,8 @@
 package com.projeto_pi.Projeto.PI.entity;
 
 import jakarta.persistence.*;
+import com.projeto_pi.Projeto.PI.config.StringCriptografadoConverter;
+import jakarta.persistence.Convert;
 
 @Entity
 @Table(name = "startups")
@@ -11,15 +13,24 @@ public class Startup {
     private Long id;
 
     private String nome;
+
+    @Convert(converter = StringCriptografadoConverter.class)
+    @Column(columnDefinition = "TEXT")
     private String segmento;
+
+    @Convert(converter = StringCriptografadoConverter.class)
+    @Column(columnDefinition = "TEXT")
     private String estagio;
 
-    @Column(length = 1000)
+    @Convert(converter = StringCriptografadoConverter.class)
+    @Column(columnDefinition = "TEXT")
     private String necessidades;
 
-    @Column(length = 2000)
+    @Convert(converter = StringCriptografadoConverter.class)
+    @Column(columnDefinition = "TEXT")
     private String pitch;
 
+    @Convert(converter = StringCriptografadoConverter.class)
     @Column(columnDefinition = "TEXT")
     private String canvas;
 
