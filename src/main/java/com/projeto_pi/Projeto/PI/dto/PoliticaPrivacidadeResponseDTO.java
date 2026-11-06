@@ -4,12 +4,8 @@ public class PoliticaPrivacidadeResponseDTO {
 
     private String versao;
     private String titulo;
-    private String finalidade;
-    private String dadosTratados;
-    private String compartilhamento;
-    private String armazenamento;
-    private String direitosTitular;
-    private String contato;
+    private String conteudo;
+    private boolean aceiteObrigatorio;
 
     public PoliticaPrivacidadeResponseDTO() {
     }
@@ -17,21 +13,13 @@ public class PoliticaPrivacidadeResponseDTO {
     public PoliticaPrivacidadeResponseDTO(
             String versao,
             String titulo,
-            String finalidade,
-            String dadosTratados,
-            String compartilhamento,
-            String armazenamento,
-            String direitosTitular,
-            String contato) {
+            String conteudo,
+            boolean aceiteObrigatorio) {
 
         this.versao = versao;
         this.titulo = titulo;
-        this.finalidade = finalidade;
-        this.dadosTratados = dadosTratados;
-        this.compartilhamento = compartilhamento;
-        this.armazenamento = armazenamento;
-        this.direitosTitular = direitosTitular;
-        this.contato = contato;
+        this.conteudo = conteudo;
+        this.aceiteObrigatorio = aceiteObrigatorio;
     }
 
     public String getVersao() {
@@ -42,27 +30,11 @@ public class PoliticaPrivacidadeResponseDTO {
         return titulo;
     }
 
-    public String getFinalidade() {
-        return finalidade;
+    public String getConteudo() {
+        return conteudo;
     }
 
-    public String getDadosTratados() {
-        return dadosTratados;
-    }
-
-    public String getCompartilhamento() {
-        return compartilhamento;
-    }
-
-    public String getArmazenamento() {
-        return armazenamento;
-    }
-
-    public String getDireitosTitular() {
-        return direitosTitular;
-    }
-
-    public String getContato() {
-        return contato;
+    public boolean isAceiteObrigatorio() {
+        return aceiteObrigatorio;
     }
 }
