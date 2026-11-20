@@ -17,8 +17,8 @@ public class InvestidorMentor {
     @Enumerated(EnumType.STRING)
     private TipoInvestidorMentor tipo;
 
-    @Convert(converter = StringCriptografadoConverter.class)
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
     private String areasInteresse;
 
 
@@ -30,12 +30,12 @@ public class InvestidorMentor {
     @Column(columnDefinition = "TEXT")
     private BigDecimal ticketMax;
 
-    @Convert(converter = StringCriptografadoConverter.class)
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
     private String estagiosPref;
 
-    @Convert(converter = StringCriptografadoConverter.class)
     @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
     private String disponibilidade;
 
     public InvestidorMentor() {
@@ -96,4 +96,58 @@ public class InvestidorMentor {
     public void setDisponibilidade(String disponibilidade) {
         this.disponibilidade = disponibilidade;
     }
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
+    private String name;
+    public String getName() { return name; }
+    public void setName(String value) { this.name = value; }
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
+    private String cpf;
+    public String getCpf() { return cpf; }
+    public void setCpf(String value) { this.cpf = value; }
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
+    private String cnpj;
+    public String getCnpj() { return cnpj; }
+    public void setCnpj(String value) { this.cnpj = value; }
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
+    private String linkedin;
+    public String getLinkedin() { return linkedin; }
+    public void setLinkedin(String value) { this.linkedin = value; }
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
+    private String city;
+    public String getCity() { return city; }
+    public void setCity(String value) { this.city = value; }
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
+    private String state;
+    public String getState() { return state; }
+    public void setState(String value) { this.state = value; }
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
+    private String aboutInvestor;
+    public String getAboutInvestor() { return aboutInvestor; }
+    public void setAboutInvestor(String value) { this.aboutInvestor = value; }
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
+    private String career;
+    public String getCareer() { return career; }
+    public void setCareer(String value) { this.career = value; }
+
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = StringCriptografadoConverter.class)
+    private String lookingFor;
+    public String getLookingFor() { return lookingFor; }
+    public void setLookingFor(String value) { this.lookingFor = value; }
 }

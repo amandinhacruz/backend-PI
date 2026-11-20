@@ -129,6 +129,14 @@ public final class CriptografiaUtil {
         }
     }
 
+    /**
+     * Valida a chave na inicialização (fail-fast). Sem isso a aplicação sobe
+     * normalmente e só falha no primeiro cadastro/leitura de dado criptografado.
+     */
+    public static void validarChave() {
+        obterChave();
+    }
+
     private static SecretKey obterChave() {
 
         String chaveConfigurada =

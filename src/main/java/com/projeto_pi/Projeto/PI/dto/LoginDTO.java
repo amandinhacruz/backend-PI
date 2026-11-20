@@ -1,7 +1,10 @@
 package com.projeto_pi.Projeto.PI.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 public class LoginDTO {
     private String email;
+    @JsonAlias("password")
     private String senha;
 
     public LoginDTO() {

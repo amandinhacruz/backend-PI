@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(name = "app.legacy-migration.enabled", havingValue = "true", matchIfMissing = true)
 public class CriptografiaMigracaoRunner implements ApplicationRunner {
 
     private final JdbcTemplate jdbcTemplate;

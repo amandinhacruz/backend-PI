@@ -1,70 +1,66 @@
 package com.projeto_pi.Projeto.PI.controller;
 
+import com.projeto_pi.Projeto.PI.dto.AdminDTOs.*;
 import com.projeto_pi.Projeto.PI.entity.StatusUsuario;
-import com.projeto_pi.Projeto.PI.entity.Usuario;
-import com.projeto_pi.Projeto.PI.repository.UsuarioRepository;
-
-import org.springframework.http.ResponseEntity;
+import com.projeto_pi.Projeto.PI.matching.AnaliseAfinidadeService;
+import com.projeto_pi.Projeto.PI.service.AdminService;
+import java.security.Principal;
+import java.util.List;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Painel administrativo. Acesso restrito a ADMIN (SecurityConfig: /admin/**).
+ * As respostas usam DTOs: a versão anterior devolvia a entidade Usuario, expondo senhaHash.
+ */
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final UsuarioRepository usuarioRepository;
+    private final AdminService service;
+    private final AnaliseAfinidadeService analisesIa;
 
-    public AdminController(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+    public AdminController(AdminService service, AnaliseAfinidadeService analisesIa) {
+        this.service = service;
+        this.analisesIa = analisesIa;
+    }
+
+    /** Situação do analista generativo (governança): ligado, chave, modelo, uso e último erro. */
+    @GetMapping("/ia/status")
+    public AnaliseAfinidadeService.StatusIa statusIa() {
+        return analisesIa.status();
+    }
+
+    @GetMapping("/usuarios")
+    public List<CadastroAdmin> listar(@RequestParam(required = false) String status) {
+        return service.listarCadastros(status);
     }
 
     @PutMapping("/usuarios/{id}/aprovar")
-    public ResponseEntity<Usuario> aprovar(
-            @PathVariable Long id) {
-
-        Usuario usuario = usuarioRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Usuário não encontrado"));
-
-        usuario.setStatus(StatusUsuario.APROVADO);
-
-        return ResponseEntity.ok(
-                usuarioRepository.save(usuario)
-        );
+    public CadastroAdmin aprovar(@PathVariable Long id, Principal admin) {
+        return service.alterarStatus(id, StatusUsuario.APROVADO, ator(admin));
     }
 
     @PutMapping("/usuarios/{id}/rejeitar")
-    public ResponseEntity<Usuario> rejeitar(
-            @PathVariable Long id) {
-
-        Usuario usuario = usuarioRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Usuário não encontrado"));
-
-        usuario.setStatus(StatusUsuario.REJEITADO);
-
-        return ResponseEntity.ok(
-                usuarioRepository.save(usuario)
-        );
+    public CadastroAdmin rejeitar(@PathVariable Long id, Principal admin) {
+        return service.alterarStatus(id, StatusUsuario.REJEITADO, ator(admin));
     }
 
     @PutMapping("/usuarios/{id}/suspender")
-    public ResponseEntity<Usuario> suspender(
-            @PathVariable Long id) {
+    public CadastroAdmin suspender(@PathVariable Long id, Principal admin) {
+        return service.alterarStatus(id, StatusUsuario.SUSPENSO, ator(admin));
+    }
 
-        Usuario usuario = usuarioRepository
-                .findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Usuário não encontrado"));
+    @GetMapping("/metricas")
+    public Metricas metricas() {
+        return service.metricas();
+    }
 
-        usuario.setStatus(StatusUsuario.SUSPENSO);
+    @GetMapping("/auditoria")
+    public List<Auditoria> auditoria() {
+        return service.auditoria();
+    }
 
-        return ResponseEntity.ok(
-                usuarioRepository.save(usuario)
-        );
+    private static String ator(Principal admin) {
+        return admin == null ? "desconhecido" : admin.getName();
     }
 }

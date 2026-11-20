@@ -23,7 +23,7 @@ public class Mensagem {
     private Usuario destinatario;
 
     @Convert(converter = StringCriptografadoConverter.class)
-    @Column(nullable = false, length = 3000)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String conteudo;
 
     @Column(nullable = false)
@@ -67,4 +67,29 @@ public class Mensagem {
     public void setDataEnvio(LocalDateTime dataEnvio) {
         this.dataEnvio = dataEnvio;
     }
+
+    /** Conversa (conexão firmada) a que a mensagem pertence; nula em mensagens antigas. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "conexao_id")
+    private Conexao conexao;
+    public Conexao getConexao() { return conexao; }
+    public void setConexao(Conexao value) { this.conexao = value; }
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private TipoMensagem tipo;
+    public TipoMensagem getTipo() { return tipo == null ? TipoMensagem.TEXTO : tipo; }
+    public void setTipo(TipoMensagem value) { this.tipo = value; }
+
+    /** Reunião ligada a uma mensagem do tipo CONVITE ou SISTEMA. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agendamento_id")
+    private Agendamento agendamento;
+    public Agendamento getAgendamento() { return agendamento; }
+    public void setAgendamento(Agendamento value) { this.agendamento = value; }
+
+    @Column(name = "lida_em")
+    private LocalDateTime lidaEm;
+    public LocalDateTime getLidaEm() { return lidaEm; }
+    public void setLidaEm(LocalDateTime value) { this.lidaEm = value; }
 }
