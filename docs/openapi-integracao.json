@@ -1,0 +1,844 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Vértice - adequação de integração",
+    "version": "2026-11-11",
+    "description": "Contrato das rotas adequadas. RF01, RF02, RF04, RF07, RF11. Exemplos e aliases em INTEGRACAO.md. Os requisitos alternativos por aliases não são expressos integralmente nas propriedades required."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Autenticar conta aprovada",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "senha": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Entrada inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "papel": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciais inválidas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Conta não aprovada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/cadastro/startup": {
+      "post": {
+        "summary": "Cadastrar startup (JSON ou formulário multipart)",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "confirmPassword": {
+                    "type": "string"
+                  },
+                  "terms": {
+                    "type": "boolean"
+                  },
+                  "privacy": {
+                    "type": "boolean"
+                  },
+                  "dataProcessing": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "cnpj": {
+                    "type": "string"
+                  },
+                  "website": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "foundedYear": {
+                    "type": "string"
+                  },
+                  "profileOwner": {
+                    "type": "string"
+                  },
+                  "segment": {
+                    "type": "string"
+                  },
+                  "stage": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  },
+                  "problem": {
+                    "type": "string"
+                  },
+                  "competitiveAdvantages": {
+                    "type": "string"
+                  },
+                  "presentationVideo": {
+                    "type": "string"
+                  },
+                  "necessidades": {
+                    "type": "string"
+                  },
+                  "pitch": {
+                    "type": "string"
+                  },
+                  "canvas": {
+                    "type": "string"
+                  },
+                  "minimumTicket": {
+                    "oneOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^\\d+(\\.\\d+)?$"
+                      }
+                    ]
+                  },
+                  "maximumTicket": {
+                    "oneOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^\\d+(\\.\\d+)?$"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "name",
+                  "segment",
+                  "stage",
+                  "dataProcessing"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "confirmPassword": {
+                    "type": "string"
+                  },
+                  "terms": {
+                    "type": "boolean"
+                  },
+                  "privacy": {
+                    "type": "boolean"
+                  },
+                  "dataProcessing": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "cnpj": {
+                    "type": "string"
+                  },
+                  "website": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "foundedYear": {
+                    "type": "string"
+                  },
+                  "profileOwner": {
+                    "type": "string"
+                  },
+                  "segment": {
+                    "type": "string"
+                  },
+                  "stage": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  },
+                  "problem": {
+                    "type": "string"
+                  },
+                  "competitiveAdvantages": {
+                    "type": "string"
+                  },
+                  "presentationVideo": {
+                    "type": "string"
+                  },
+                  "necessidades": {
+                    "type": "string"
+                  },
+                  "pitch": {
+                    "type": "string"
+                  },
+                  "canvas": {
+                    "type": "string"
+                  },
+                  "minimumTicket": {
+                    "oneOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^\\d+(\\.\\d+)?$"
+                      }
+                    ]
+                  },
+                  "maximumTicket": {
+                    "oneOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^\\d+(\\.\\d+)?$"
+                      }
+                    ]
+                  },
+                  "pitchDeck": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "businessModelCanvas": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "businessCanvas": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "name",
+                  "segment",
+                  "stage",
+                  "dataProcessing"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado e pendente de aprovação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "papel": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDENTE"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "E-mail já cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Arquivo ou requisição excede limite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Aliases portugueses continuam aceitos; ver INTEGRACAO.md. Campos opcionais devem ser omitidos se vazios. Arquivos PDF/PPT/PPTX até 10 MB cada."
+      }
+    },
+    "/auth/cadastro/investidor": {
+      "post": {
+        "summary": "Cadastrar investidor ou mentor",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "confirmPassword": {
+                    "type": "string"
+                  },
+                  "terms": {
+                    "type": "boolean"
+                  },
+                  "privacy": {
+                    "type": "boolean"
+                  },
+                  "dataProcessing": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "cpf": {
+                    "type": "string"
+                  },
+                  "linkedin": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "segment": {
+                    "type": "string"
+                  },
+                  "stage": {
+                    "type": "string"
+                  },
+                  "aboutInvestor": {
+                    "type": "string"
+                  },
+                  "career": {
+                    "type": "string"
+                  },
+                  "lookingFor": {
+                    "type": "string"
+                  },
+                  "disponibilidade": {
+                    "type": "string"
+                  },
+                  "minimumTicket": {
+                    "oneOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^\\d+(\\.\\d+)?$"
+                      }
+                    ]
+                  },
+                  "maximumTicket": {
+                    "oneOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      {
+                        "type": "string",
+                        "pattern": "^\\d+(\\.\\d+)?$"
+                      }
+                    ]
+                  },
+                  "tipo": {
+                    "type": "string",
+                    "enum": [
+                      "INVESTIDOR",
+                      "MENTOR"
+                    ],
+                    "default": "INVESTIDOR"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "segment",
+                  "dataProcessing"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado e pendente de aprovação",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "papel": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "PENDENTE"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "E-mail já cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/startups": {
+      "get": {
+        "summary": "Feed de startups aprovadas",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "segment",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "stage",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          },
+          {
+            "name": "location",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array de cartões",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "location": {
+                        "type": "string"
+                      },
+                      "segment": {
+                        "type": "string"
+                      },
+                      "stage": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "tone": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticação obrigatória"
+          },
+          "403": {
+            "description": "Papel sem acesso"
+          }
+        }
+      }
+    },
+    "/startups/{id}": {
+      "get": {
+        "summary": "Detalhe público de empresa aprovada",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "location": {
+                      "type": "string"
+                    },
+                    "segment": {
+                      "type": "string"
+                    },
+                    "stage": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "tone": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Inexistente ou não aprovada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticação obrigatória"
+          }
+        }
+      }
+    },
+    "/startups/{id}/materiais/{tipo}": {
+      "get": {
+        "summary": "Baixar material de empresa aprovada",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pitch",
+                "canvas"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Arquivo em attachment",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Material indisponível",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Autenticação obrigatória"
+          }
+        }
+      }
+    }
+  }
+}

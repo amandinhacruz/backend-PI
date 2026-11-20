@@ -34,6 +34,8 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(org.springframework.security.config.Customizer.withDefaults())
+                .exceptionHandling(errors -> errors.authenticationEntryPoint((request, response, exception) -> response.sendError(401)))
 
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
@@ -52,11 +54,32 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**")
                         .hasRole("ADMIN")
 
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/startups", "/startups/**")
+                        .hasAnyRole("INVESTIDOR", "STARTUP", "ADMIN")
+
                         .requestMatchers("/startups/**")
                         .hasRole("STARTUP")
 
                         .requestMatchers("/investidores-mentores/**")
                         .hasRole("INVESTIDOR")
+
+                        .requestMatchers("/matchmaking/investidor/**")
+                        .hasRole("INVESTIDOR")
+
+                        .requestMatchers("/matchmaking/startup/pedidos/**")
+                        .hasRole("STARTUP")
+
+                        .requestMatchers("/matchmaking/startup/**")
+                        .hasAnyRole("STARTUP", "ADMIN")
+
+                        .requestMatchers("/conexoes/**")
+                        .hasAnyRole("STARTUP", "INVESTIDOR")
+
+                        .requestMatchers("/perfil", "/perfil/**")
+                        .hasAnyRole("STARTUP", "INVESTIDOR")
+
+                        .requestMatchers("/conversas/**", "/reunioes/**")
+                        .hasAnyRole("STARTUP", "INVESTIDOR")
 
                         .anyRequest()
                         .authenticated()

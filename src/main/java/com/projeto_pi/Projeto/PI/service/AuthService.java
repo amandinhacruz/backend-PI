@@ -28,24 +28,22 @@ public class AuthService {
 
     public LoginResponseDTO login(LoginDTO dto) {
 
+        String email = RegistrationValidation.credentials(dto.getEmail(), dto.getSenha(), null);
         Usuario usuario = usuarioRepository
-                .findByEmail(dto.getEmail())
+                .findByEmailIgnoreCase(email)
                 .orElseThrow(() ->
-                        new RuntimeException("Email ou senha inválidos"));
+                        new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Email ou senha inválidos"));
 
         if (!passwordEncoder.matches(
                 dto.getSenha(),
                 usuario.getSenhaHash())) {
 
-            throw new RuntimeException(
-                    "Email ou senha inválidos");
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Email ou senha inválidos");
         }
 
         if (usuario.getStatus() != com.projeto_pi.Projeto.PI.entity.StatusUsuario.APROVADO) {
 
-            throw new RuntimeException(
-                    "Usuário ainda não está aprovado"
-            );
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN, "Usuário ainda não está aprovado");
         }
 
         String token = jwtService.gerarToken(

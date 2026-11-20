@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Configuração local de execução (contém VERTICE_ENCRYPTION_KEY) ###
+.run/

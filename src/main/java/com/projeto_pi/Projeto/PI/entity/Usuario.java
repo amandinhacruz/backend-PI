@@ -33,6 +33,16 @@ public class Usuario {
     @Column(name = "versao_politica_consentida", length = 20)
     private String versaoPoliticaConsentida;
 
+    @Column(name = "criado_em")
+    private LocalDateTime criadoEm;
+    public LocalDateTime getCriadoEm() { return criadoEm; }
+    public void setCriadoEm(LocalDateTime value) { this.criadoEm = value; }
+
+    @PrePersist
+    void aoCriar() {
+        if (criadoEm == null) criadoEm = LocalDateTime.now();
+    }
+
     @OneToOne
     @JoinColumn(name = "startup_id")
     private Startup startup;

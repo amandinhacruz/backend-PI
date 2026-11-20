@@ -30,6 +30,7 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
+        <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><scope>test</scope></dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -60,6 +61,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<!-- SDK oficial da Anthropic: analista de afinidade e dossiê do matchmaking (docs/IA.md) -->
+		<dependency>
+			<groupId>com.anthropic</groupId>
+			<artifactId>anthropic-java</artifactId>
+			<version>3.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -92,6 +99,15 @@
 
 	<build>
 		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <environmentVariables>
+                        <VERTICE_ENCRYPTION_KEY>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</VERTICE_ENCRYPTION_KEY>
+                    </environmentVariables>
+                </configuration>
+            </plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -134,5 +150,40 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!--
+		  Roda a mesma suíte de testes contra o PostgreSQL instalado na máquina (o H2 imita o
+		  PostgreSQL, mas não é igual em bytea, TEXT e algumas consultas).
+		  Usa um banco só de testes, "vertice_teste": as tabelas são recriadas a cada execução
+		  e os bancos projeto_pi e vertice_simulacao não são tocados.
+		  Uso: ./mvnw test -Ppostgres
+		  Outro servidor/credencial: -Dteste.pg.url=... -Dteste.pg.usuario=... -Dteste.pg.senha=...
+		-->
+		<profile>
+			<id>postgres</id>
+			<properties>
+				<teste.pg.url>jdbc:postgresql://localhost:5432/vertice_teste</teste.pg.url>
+				<teste.pg.usuario>postgres</teste.pg.usuario>
+				<teste.pg.senha>root</teste.pg.senha>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<systemPropertyVariables>
+								<spring.datasource.url>${teste.pg.url}</spring.datasource.url>
+								<spring.datasource.driver-class-name>org.postgresql.Driver</spring.datasource.driver-class-name>
+								<spring.datasource.username>${teste.pg.usuario}</spring.datasource.username>
+								<spring.datasource.password>${teste.pg.senha}</spring.datasource.password>
+							</systemPropertyVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
