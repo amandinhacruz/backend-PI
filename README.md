@@ -6,5 +6,7 @@ Adequação de login, cadastro e feed de empresas, com preservação dos campos 
 - [Relatório de QA e limites da validação](docs/RELATORIO_QA.md)
 - [Contrato OpenAPI](docs/openapi-integracao.json)
 - [Matchmaking com inteligência artificial](docs/IA.md)
+- [Simulação de produção](docs/SIMULACAO.md)
+- [Testes (backend, PostgreSQL real, front e ponta a ponta)](docs/TESTES.md)
 
 Java 21. Aplicação: `mvnw.cmd spring-boot:run`; testes: `mvnw.cmd test` (Linux/macOS: `./mvnw`). Consulte o guia para configurar PostgreSQL e a chave de criptografia antes de iniciar.

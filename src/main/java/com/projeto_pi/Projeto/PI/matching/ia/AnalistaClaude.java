@@ -31,9 +31,9 @@ import java.util.Optional;
  *   {@link DossieGerado}, sem parsing manual.
  * - Prompt em cache: as instruções são idênticas em toda chamada e ficam em cache no provedor,
  *   o que barateia os lotes seguintes.
- * - Recusas: se o modelo recusar, o provedor tenta um modelo alternativo ("fallbacks"); se ainda
- *   assim não houver resposta, lançamos {@link AnaliseIndisponivelException} e a plataforma usa a
- *   nota local.
+ * - Recusas: nos modelos que têm o recurso ({@link #MODELOS_COM_FALLBACK}), o provedor tenta um
+ *   modelo alternativo ("fallbacks"). Se ainda assim não houver resposta, lançamos
+ *   {@link AnaliseIndisponivelException} e a plataforma usa a nota local.
  *
  * A chave é lida da variável de ambiente ANTHROPIC_API_KEY. Ela nunca vai para arquivo de configuração.
  */
@@ -42,6 +42,15 @@ public class AnalistaClaude implements AnalistaAfinidade {
 
     /** Cabeçalho beta que habilita o modelo alternativo do lado do servidor em caso de recusa. */
     static final String BETA_FALLBACK = "server-side-fallback-2026-07-01";
+
+    /**
+     * Modelos que aceitam o modelo alternativo do lado do servidor. Os demais (ex.: Claude Haiku 5.5)
+     * não têm o recurso: neles o parâmetro não teria efeito, então não é enviado e uma recusa
+     * cai direto na nota local.
+     */
+    static final java.util.Set<String> MODELOS_COM_FALLBACK = java.util.Set.of(
+            "claude-fable-5-2", "claude-fable-5-1", "claude-mythos-5-2", "claude-mythos-5-1",
+            "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5");
     private static final long MAX_TOKENS = 16000L;
 
     private final IaProperties props;
@@ -107,16 +116,22 @@ public class AnalistaClaude implements AnalistaAfinidade {
                 .build();
     }
 
+    static boolean suportaFallback(String modelo) {
+        return modelo != null && MODELOS_COM_FALLBACK.contains(modelo.trim());
+    }
+
     private MessageCreateParams.Builder base(String instrucoes) {
-        return MessageCreateParams.builder()
+        MessageCreateParams.Builder builder = MessageCreateParams.builder()
                 .model(props.modelo())
                 .maxTokens(MAX_TOKENS)
-                .addBeta(BETA_FALLBACK)
-                .fallbacksDefault()
                 .systemOfBetaTextBlockParams(List.of(BetaTextBlockParam.builder()
                         .text(instrucoes)
                         .cacheControl(BetaCacheControlEphemeral.builder().build())
                         .build()));
+        if (suportaFallback(props.modelo())) {
+            builder.addBeta(BETA_FALLBACK).fallbacksDefault();
+        }
+        return builder;
     }
 
     private BetaOutputConfig.Effort esforco() {

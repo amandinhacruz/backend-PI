@@ -22,7 +22,9 @@ public final class AdminDTOs {
             long reunioes, long reunioesAceitas,
             List<Engajamento> engajamento,
             long matches, long pedidosConexao, long pedidosPendentes, long recomendacoesPassadas,
-            long matchesComIa, long avaliacoes, Double notaMedia) {}
+            long matchesComIa, long avaliacoes, Double notaMedia,
+            long startupsAprovadas, long investidoresAprovados, long reunioesAguardando,
+            long matchesComReuniao) {}
 
     public record Auditoria(Long id, String acao, String alvo, String ator, LocalDateTime data) {}
 }

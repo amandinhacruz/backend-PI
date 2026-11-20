@@ -23,7 +23,8 @@ public final class MatchingDTOs {
             String location, BigDecimal ticketMin, BigDecimal ticketMax,
             int affinity, String source, boolean pending, String summary,
             List<String> strengths, List<String> concerns, List<String> questions,
-            List<String> factors, Breakdown breakdown) {
+            List<String> factors, Breakdown breakdown,
+            boolean hasPhoto, boolean hasPitchDeck, boolean hasCanvas, String presentationVideo) {
     }
 
     public record AiStatus(boolean enabled, int pending, String model) {
@@ -47,7 +48,7 @@ public final class MatchingDTOs {
     public record RequestCard(
             String id, Long userId, String name, String role, List<String> tags, String description,
             String location, BigDecimal ticketMin, BigDecimal ticketMax,
-            int affinity, String summary, LocalDateTime requestedAt) {
+            int affinity, String summary, LocalDateTime requestedAt, boolean hasPhoto) {
     }
 
     public record Rating(int score, String comment) {
@@ -60,7 +61,7 @@ public final class MatchingDTOs {
     public record ConnectionItem(
             String id, String profileId, Long userId, String name, String type, String city, String state,
             List<String> segments, BigDecimal ticketMin, BigDecimal ticketMax, String connectedAt,
-            Rating myRating) {
+            Rating myRating, boolean hasPhoto) {
     }
 
     public record Dossier(

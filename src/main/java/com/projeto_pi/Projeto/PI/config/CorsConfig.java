@@ -13,6 +13,8 @@ public class CorsConfig {
         config.setAllowedOrigins(java.util.Arrays.stream(origins.split(",")).map(String::trim).toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        // O front lê o nome do arquivo nos downloads de materiais (pitch deck e canvas).
+        config.setExposedHeaders(List.of("Content-Disposition"));
         var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

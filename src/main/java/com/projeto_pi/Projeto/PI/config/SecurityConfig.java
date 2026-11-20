@@ -75,6 +75,12 @@ public class SecurityConfig {
                         .requestMatchers("/conexoes/**")
                         .hasAnyRole("STARTUP", "INVESTIDOR")
 
+                        .requestMatchers("/perfil", "/perfil/**")
+                        .hasAnyRole("STARTUP", "INVESTIDOR")
+
+                        .requestMatchers("/conversas/**", "/reunioes/**")
+                        .hasAnyRole("STARTUP", "INVESTIDOR")
+
                         .anyRequest()
                         .authenticated()
                 )

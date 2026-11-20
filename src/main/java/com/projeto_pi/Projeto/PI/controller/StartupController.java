@@ -1,5 +1,6 @@
 package com.projeto_pi.Projeto.PI.controller;
 import com.projeto_pi.Projeto.PI.entity.Startup;
+// Escrita de perfil: PerfilController (PUT /perfil/startup).
 import com.projeto_pi.Projeto.PI.service.StartupService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +16,6 @@ public class StartupController {
 
     public StartupController(StartupService startupService) {
         this.startupService = startupService;
-    }
-
-    @PostMapping
-    public ResponseEntity<Startup> cadastrar(@RequestBody Startup startup) {
-        Startup novaStartup = startupService.cadastrar(startup);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(novaStartup);
     }
 
     @GetMapping
@@ -56,15 +48,5 @@ public class StartupController {
         return ResponseEntity.ok().contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
             .header("Content-Disposition", org.springframework.http.ContentDisposition.attachment().filename(safeName).build().toString())
             .header("X-Content-Type-Options", "nosniff").body(bytes);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Startup> atualizar(
-            @PathVariable Long id,
-            @RequestBody Startup startup) {
-
-        return ResponseEntity.ok(
-                startupService.atualizar(id, startup)
-        );
     }
 }

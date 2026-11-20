@@ -113,3 +113,61 @@ O contrato OpenAPI das rotas deste escopo está em `docs/openapi-integracao.json
 | GET | `/admin/auditoria` | Últimas 200 ações `{acao,alvo,ator,data}` |
 
 Não existe registro persistido de "matches" (o matchmaking é calculado na hora). Por isso o painel mostra **conexões**: pares de usuários que trocaram mensagem ou agendaram reunião. Novas colunas e tabela (`usuarios.criado_em`, `investidores_mentores.cnpj`, `auditoria_admin`) são criadas pelo `ddl-auto=update`. Cadastros antigos usam a data de consentimento como data de envio.
+
+
+## Atualização: mensagens e reuniões (RF05)
+
+Só existe conversa entre os dois lados de uma **conexão firmada**, e o remetente é sempre o usuário do token. As rotas antigas `/mensagens` e `/agendamentos`, que recebiam o id do remetente no corpo e permitiam falar em nome de outro usuário, foram removidas.
+
+| Método | Rota | Papel | Descrição |
+| --- | --- | --- | --- |
+| GET | `/conversas` | os dois | Conversas com última mensagem e não lidas |
+| GET | `/conversas/{conexaoId}/mensagens` | os dois | Histórico; marca as recebidas como lidas |
+| POST | `/conversas/{conexaoId}/mensagens` | os dois | `{"text":"..."}`, até 1000 caracteres |
+| POST | `/conversas/{conexaoId}/convites` | INVESTIDOR | `{"date":"2026-11-24","time":"15:00","durationMinutes":30,"subject":"...","location":"..."}` |
+| GET | `/reunioes` | os dois | Agenda do usuário |
+| POST | `/reunioes/{id}/resposta` | STARTUP convidada | `{"decision":"accepted"}` ou `"rejected"` |
+| POST | `/reunioes/{id}/cancelar` | os dois | Cancela reunião pendente ou confirmada que ainda não aconteceu |
+
+Regras do convite: data e horário futuros e em até 6 meses; duração de 15 a 240 minutos; um convite aberto por conversa; não pode coincidir com outra reunião confirmada do investidor ou da startup (409). Aceite, recusa e cancelamento geram um aviso automático no chat. Mensagens e assunto/local das reuniões são criptografados em repouso.
+
+## Atualização: perfis, foto, materiais e animação de match
+
+**Perfis (STARTUP e INVESTIDOR)**
+
+| Rota | Uso |
+|---|---|
+| `GET /perfil` | Perfil do usuário logado: `{role, startup, investor}` (só um preenchido). Inclui e-mail, CPF/CNPJ e responsável. |
+| `PUT /perfil/startup` / `PUT /perfil/investidor` | Edição do próprio perfil (JSON). Nome, segmento(s) e estágio obrigatórios; ticket mínimo ≤ máximo; links só `http(s)`. Para o investidor, segmentos/estágios/ticket alimentam o matching. |
+| `PUT /perfil/foto` (multipart `photo`) / `DELETE /perfil/foto` | Foto de perfil: JPG, PNG ou WebP, até 2 MB, conferidos pelo conteúdo do arquivo. Guardada criptografada (tabela `fotos_perfil`). |
+| `PUT /perfil/materiais/{pitch\|canvas}` (multipart `file`) / `DELETE ...` | Pitch deck e Business Model Canvas da startup (PDF/PPT/PPTX, até 10 MB). |
+| `GET /startups/{id}/perfil` | Perfil público de uma startup aprovada (botão "Visualizar Perfil" da página Startups → `/investors/startups/:id`). Sem e-mail, CNPJ nem responsável. |
+| `GET /usuarios/{id}/foto` | Foto de um usuário aprovado, para usuários logados (`nosniff`, cache privado). O front busca com o token e usa *object URL*. |
+
+As rotas antigas `POST /startups` e `PUT /startups/{id}` foram removidas: não conferiam o dono do perfil.
+
+**Cadastro com foto**: `POST /auth/cadastro/startup` (multipart) aceita a parte `photo`; `POST /auth/cadastro/investidor` passou a aceitar multipart também (listas como campos repetidos: `segments=a&segments=b`). Sem foto, os dois continuam aceitando JSON.
+
+**Anexos nos cartões de matching**: pelo RF06 ("permitir que a startup apresente seu pitch e modelo de negócio (Canvas) dentro do perfil") os anexos são **opcionais**. O `MatchCard` traz `hasPitchDeck`, `hasCanvas` e `presentationVideo`; o cartão só mostra os botões do que a startup enviou. Os downloads usam `GET /startups/{id}/materiais/{pitch|canvas}` (o CORS expõe `Content-Disposition` para o nome do arquivo). Cartões, conexões e conversas trazem `hasPhoto`.
+
+**Animação de match**: ao firmar a conexão (startup) ou na primeira visita após a startup firmar (investidor, verificação a cada 15 s, conexões já vistas no `localStorage`), a tela é preenchida com o laranja `#EF5948`, que recua das margens para o centro e forma o símbolo do Vértice, com "Conexão bem-sucedida!" e o pop-up "Inicie a conversa" (abre `…/mensagens?conversa=<id>`). Respeita `prefers-reduced-motion`.
+
+## Atualização: métricas do admin e animações
+
+**Métricas (`GET /admin/metricas`) — o que mudou na validação**
+
+| Indicador | Antes | Agora |
+|---|---|---|
+| Startups / investidores | total de cadastros (incluía pendentes e reprovados) | cartão mostra **aprovados** (`startupsAprovadas`, `investidoresAprovados`); total e "neste mês" no detalhe |
+| Mensagens trocadas | contava convites de reunião e avisos automáticos | só mensagens escritas (`TipoMensagem.TEXTO`) |
+| `conexoes` | pares com mensagem ou reunião | matches (conexões firmadas) |
+| Reuniões agendadas | todos os convites (inclusive recusados e cancelados) | reuniões **aceitas**; convites e `reunioesAguardando` no detalhe |
+| "Conexões com reunião agendada" | sempre ~100% (todo par com reunião também tem mensagem) | **Matches com reunião confirmada** = `matchesComReuniao` / matches |
+| "Reuniões aceitas" | aceitas / todos os convites (inclusive os ainda sem resposta) | **Convites de reunião aceitos** = aceitas / (convites − aguardando resposta) |
+| "Pedidos firmados pelas startups" | mesmo cálculo | renomeado para **Pedidos respondidos que viraram match** (pendentes ficam de fora) |
+
+**Animações do front** (todas respeitam "reduzir movimento"):
+- Métricas: números e barras contam de 0 até o valor ao abrir a página (`components/motion.ts`).
+- Transição entre páginas: fade da página e subida leve do conteúdo (`.page-enter` em `index.css`). Os menus laterais passaram a usar `<Link>` (navegação sem recarregar) e o logo do menu leva à página inicial do portal (antes apontava para `/painel`, que não existe).
+- Matching: troca de cartão com curva de aceleração e desaceleração (620 ms) e rastro de desfoque no auge da velocidade; o cartão que entra e o que sai também deslizam.
+- Login (startup, investidor e admin): tela laranja recua até o centro, o símbolo se forma do centro para as pontas com brilho e o sistema abre por baixo (`components/LoginIntro.tsx`).

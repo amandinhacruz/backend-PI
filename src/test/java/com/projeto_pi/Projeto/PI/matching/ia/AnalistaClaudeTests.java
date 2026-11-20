@@ -37,6 +37,19 @@ class AnalistaClaudeTests {
     }
 
     @Test
+    void haikuRequestOmitsRefusalFallback() {
+        var haiku = new AnalistaClaude(
+                new IaProperties(true, "claude-haiku-5-5", "medium", "1.1", true, 6, 18, 120),
+                JsonMapper.builder().build());
+        var requisicao = haiku.requisicaoAnalise(investidor, List.of(startup));
+        String corpo = requisicao.rawParams()._body().toString();
+        assertTrue(corpo.contains("claude-haiku-5-5"));
+        assertTrue(corpo.contains("fallbacks=,"), "sem o parâmetro de fallback");
+        assertFalse(requisicao.rawParams()._headers().toString().contains(AnalistaClaude.BETA_FALLBACK));
+        assertTrue(corpo.contains("aderenciaTese"), "o formato de saída continua igual");
+    }
+
+    @Test
     void dossierRequestBuildsWithValidSchema() {
         var requisicao = analista.requisicaoDossie(investidor, startup);
         assertTrue(requisicao.rawParams()._body().toString().contains("resumoExecutivo"));

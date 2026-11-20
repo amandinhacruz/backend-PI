@@ -69,9 +69,12 @@ public class MatchmakingService {
     private final AnaliseAfinidadeService analisesIa;
     private final AprendizadoService aprendizado;
     private final IaProperties ia;
+    private final com.projeto_pi.Projeto.PI.repository.FotoPerfilRepository fotos;
 
     public MatchmakingService(UsuarioRepository usuarios, ConexaoRepository conexoes, StartupRepository startups,
-                              AnaliseAfinidadeService analisesIa, AprendizadoService aprendizado, IaProperties ia) {
+                              AnaliseAfinidadeService analisesIa, AprendizadoService aprendizado, IaProperties ia,
+                              com.projeto_pi.Projeto.PI.repository.FotoPerfilRepository fotos) {
+        this.fotos = fotos;
         this.usuarios = usuarios;
         this.conexoes = conexoes;
         this.startups = startups;
@@ -98,11 +101,13 @@ public class MatchmakingService {
         Contexto ctx = investidor(email);
         List<StartupResumo> aprovadas = usuarios.findStartupsAprovadas();
         List<Pontuada> fila = pontuar(ctx, elegiveis(ctx, aprovadas));
+        Set<Long> comFoto = fila.isEmpty() ? Set.of()
+                : fotos.comFoto(fila.stream().map(p -> p.startup().usuarioId()).toList());
         boolean iaAtiva = analisesIa.iaAtiva();
         int pendentes = (int) fila.stream().filter(Pontuada::pendente).count();
         PreferenciasInvestidor pref = ctx.preferencias();
         return new Queue(
-                fila.stream().map(pontuada -> cartao(ctx, pontuada)).toList(),
+                fila.stream().map(pontuada -> cartao(ctx, pontuada, comFoto)).toList(),
                 new AiStatus(iaAtiva, pendentes, iaAtiva ? analisesIa.modelo() : null),
                 new Criteria(pref.segmentos(), pref.estagios(), pref.ticket().min(), pref.ticket().max()),
                 aprovadas.size());
@@ -207,7 +212,7 @@ public class MatchmakingService {
                 && VersaoPolitica.atende(startup.versaoPolitica(), ia.politicaMinima());
     }
 
-    private MatchCard cartao(Contexto ctx, Pontuada p) {
+    private MatchCard cartao(Contexto ctx, Pontuada p, Set<Long> comFoto) {
         StartupResumo s = p.startup();
         PreferenciasInvestidor pref = ctx.preferencias();
         AnaliseAfinidade analise = p.analise();
@@ -251,7 +256,10 @@ public class MatchmakingService {
                 tags(s.segmento(), s.estagio()), descricao(s), s.local(), s.ticketMin(), s.ticketMax(),
                 p.afinidade(), p.origem(), p.pendente(), resumo, fortes, atencao, perguntas, fatores,
                 new Breakdown(analise != null ? analise.getNota() : null, p.local().nota(),
-                        p.ajustePreferencia(), p.ajusteReputacao()));
+                        p.ajustePreferencia(), p.ajusteReputacao()),
+                comFoto.contains(s.usuarioId()),
+                !Formatos.texto(s.pitchDeckNome()).isEmpty(), !Formatos.texto(s.canvasNome()).isEmpty(),
+                Formatos.texto(s.video()));
     }
 
     private static List<String> tags(String... valores) {
@@ -371,7 +379,8 @@ public class MatchmakingService {
                     conexao.getId().toString(), investidor.getId(), nomeDe(perfil, investidor), papelDe(perfil),
                     pref.segmentos(), descricaoDe(perfil),
                     local(perfil.getCity(), perfil.getState()), perfil.getTicketMin(), perfil.getTicketMax(),
-                    conexao.getAfinidade(), resumo, conexao.getCriadaEm()));
+                    conexao.getAfinidade(), resumo, conexao.getCriadaEm(),
+                    fotos.existsByUsuarioId(investidor.getId())));
         }
         return pedidos;
     }

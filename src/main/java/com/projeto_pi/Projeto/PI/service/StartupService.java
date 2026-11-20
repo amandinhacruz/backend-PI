@@ -1,59 +1,61 @@
 package com.projeto_pi.Projeto.PI.service;
 
+import com.projeto_pi.Projeto.PI.dto.StartupFeedDTO;
 import com.projeto_pi.Projeto.PI.entity.Startup;
+import com.projeto_pi.Projeto.PI.matching.StartupResumo;
+import com.projeto_pi.Projeto.PI.repository.FotoPerfilRepository;
 import com.projeto_pi.Projeto.PI.repository.StartupRepository;
+import com.projeto_pi.Projeto.PI.repository.UsuarioRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
+/**
+ * Feed e materiais das startups aprovadas. As rotas antigas de escrita (POST /startups e
+ * PUT /startups/{id}) foram removidas: não verificavam o dono do perfil. A edição agora é
+ * feita em PUT /perfil/startup (PerfilService).
+ */
 @Service
 public class StartupService {
 
     private final StartupRepository startupRepository;
+    private final UsuarioRepository usuarios;
+    private final FotoPerfilRepository fotos;
 
-    public StartupService(StartupRepository startupRepository) {
+    public StartupService(StartupRepository startupRepository, UsuarioRepository usuarios, FotoPerfilRepository fotos) {
         this.startupRepository = startupRepository;
+        this.usuarios = usuarios;
+        this.fotos = fotos;
     }
 
-    public Startup cadastrar(Startup startup) {
-        return startupRepository.save(startup);
-    }
-
-    public List<com.projeto_pi.Projeto.PI.dto.StartupFeedDTO> feed(String search, String segment, String stage, String location) {
-        return startupRepository.findApproved().stream()
-            .map(com.projeto_pi.Projeto.PI.dto.StartupFeedDTO::from)
-            .filter(s -> search == null || s.name().toLowerCase(java.util.Locale.ROOT).contains(search.trim().toLowerCase(java.util.Locale.ROOT)))
+    @Transactional(readOnly = true)
+    public List<StartupFeedDTO> feed(String search, String segment, String stage, String location) {
+        List<StartupResumo> aprovadas = usuarios.findStartupsAprovadas();
+        Set<Long> comFoto = aprovadas.isEmpty() ? Set.of()
+                : fotos.comFoto(aprovadas.stream().map(StartupResumo::usuarioId).toList());
+        return aprovadas.stream()
+            .map(s -> StartupFeedDTO.from(s, comFoto.contains(s.usuarioId())))
+            .filter(s -> search == null || s.name().toLowerCase(Locale.ROOT).contains(search.trim().toLowerCase(Locale.ROOT)))
             .filter(s -> segment == null || segment.isBlank() || s.segment().equals(segment))
             .filter(s -> stage == null || stage.isBlank() || s.stage().equals(stage))
             .filter(s -> location == null || location.isBlank() || s.location().equals(location))
             .toList();
     }
 
-    public com.projeto_pi.Projeto.PI.dto.StartupFeedDTO perfilAprovado(Long id) {
-        return startupRepository.findApproved().stream().filter(s -> s.getId().equals(id))
-            .map(com.projeto_pi.Projeto.PI.dto.StartupFeedDTO::from).findFirst()
-            .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Startup não encontrada"));
-    }
-
-    public List<Startup> listar() {
-        return startupRepository.findAll();
+    @Transactional(readOnly = true)
+    public StartupFeedDTO perfilAprovado(Long id) {
+        StartupResumo s = usuarios.findStartupAprovada(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Startup não encontrada"));
+        return StartupFeedDTO.from(s, fotos.existsByUsuarioId(s.usuarioId()));
     }
 
     public Startup buscarPorId(Long id) {
         return startupRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Startup não encontrada"));
-    }
-
-    public Startup atualizar(Long id, Startup startup) {
-        Startup existente = buscarPorId(id);
-
-        existente.setNome(startup.getNome());
-        existente.setSegmento(startup.getSegmento());
-        existente.setEstagio(startup.getEstagio());
-        existente.setNecessidades(startup.getNecessidades());
-        existente.setPitch(startup.getPitch());
-        existente.setCanvas(startup.getCanvas());
-
-        return startupRepository.save(existente);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Startup não encontrada"));
     }
 }

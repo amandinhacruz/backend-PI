@@ -17,16 +17,39 @@ import tools.jackson.databind.json.JsonMapper;
 public class MultipartRegistrationController {
     private final UsuarioService service;
     private final JsonMapper mapper;
-    public MultipartRegistrationController(UsuarioService service, JsonMapper mapper) {
-        this.service = service; this.mapper = mapper;
+    private final com.projeto_pi.Projeto.PI.service.PerfilService perfis;
+    public MultipartRegistrationController(UsuarioService service, JsonMapper mapper,
+                                           com.projeto_pi.Projeto.PI.service.PerfilService perfis) {
+        this.service = service; this.mapper = mapper; this.perfis = perfis;
+    }
+
+    /** Cadastro do investidor com foto de perfil. Listas (segments, stages) vêm como campos repetidos. */
+    @PostMapping(value = "/investidor", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
+    public ResponseEntity<UsuarioResponseDTO> investidor(
+            @RequestParam org.springframework.util.MultiValueMap<String,String> fields,
+            @RequestPart(required = false) MultipartFile photo) {
+        if (photo != null && !photo.isEmpty()) com.projeto_pi.Projeto.PI.service.Arquivos.foto(photo);
+        Map<String,String> simples = new HashMap<>();
+        fields.forEach((key, values) -> { if (!key.equals("segments") && !key.equals("stages") && !values.isEmpty()) simples.put(key, values.get(0)); });
+        Map<String,Object> values = normalize(simples);
+        for (String lista : List.of("segments", "stages")) {
+            List<String> itens = fields.getOrDefault(lista, List.of()).stream().filter(v -> !v.isBlank()).toList();
+            if (!itens.isEmpty()) values.put(lista, itens);
+        }
+        Usuario user = service.cadastrarInvestidorMentor(mapper.convertValue(values, CadastroInvestidorMentorDTO.class));
+        if (photo != null && !photo.isEmpty()) perfis.salvarFoto(user.getId(), photo);
+        return ResponseEntity.status(201).body(new UsuarioResponseDTO(user.getId(), user.getEmail(), user.getPapel(), user.getStatus()));
     }
     @PostMapping(value = "/startup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
     public ResponseEntity<UsuarioResponseDTO> startup(@RequestParam Map<String,String> fields,
             @RequestPart(required = false) MultipartFile pitchDeck,
             @RequestPart(required = false) MultipartFile businessCanvas,
-            @RequestPart(required = false) MultipartFile businessModelCanvas) throws IOException {
+            @RequestPart(required = false) MultipartFile businessModelCanvas,
+            @RequestPart(required = false) MultipartFile photo) throws IOException {
         validate(pitchDeck); validate(businessCanvas); validate(businessModelCanvas);
+        if (photo != null && !photo.isEmpty()) com.projeto_pi.Projeto.PI.service.Arquivos.foto(photo);
         Usuario user = service.cadastrarStartup(mapper.convertValue(normalize(fields), CadastroStartupDTO.class));
         Startup s = user.getStartup();
         if (pitchDeck != null && !pitchDeck.isEmpty()) {
@@ -36,6 +59,7 @@ public class MultipartRegistrationController {
         if (canvas != null && !canvas.isEmpty()) {
             s.setBusinessCanvasData(canvas.getBytes()); s.setBusinessCanvasName(canvas.getOriginalFilename());
         }
+        if (photo != null && !photo.isEmpty()) perfis.salvarFoto(user.getId(), photo);
         return ResponseEntity.status(201).body(new UsuarioResponseDTO(user.getId(), user.getEmail(), user.getPapel(), user.getStatus()));
     }
     private Map<String,Object> normalize(Map<String,String> fields) {

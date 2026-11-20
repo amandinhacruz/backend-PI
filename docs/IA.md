@@ -48,7 +48,7 @@ Por que misturar a nota do modelo com a local: uma startup poderia escrever no p
 
 **Custo (estimativa, preços de 11/2026).** Um lote de 6 startups usa perto de 3 mil tokens de entrada e 3 mil de saída. No Claude Opus 5.5 (US$ 4 e US$ 20 por milhão) isso dá cerca de US$ 0,07 por lote. No Claude Haiku 5.5 (US$ 0,10 e US$ 0,50) dá cerca de US$ 0,002. Como as análises ficam guardadas, o gasto acompanha o número de pares novos, não o de acessos. Para trocar, defina `VERTICE_IA_MODELO=claude-haiku-5-5`.
 
-**Recusas.** As chamadas usam o fallback do lado do servidor (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`): se o modelo recusar, o provedor tenta um modelo alternativo antes de devolver a recusa.
+**Recusas.** Nos modelos que têm o recurso (Opus 5.5, Opus 5, Sonnet 5.5, Fable 5.1/5.2), as chamadas usam o fallback do lado do servidor (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`): se o modelo recusar, o provedor tenta um modelo alternativo antes de devolver a recusa. O Claude Haiku 5.5 não tem esse recurso, então o parâmetro não é enviado e uma recusa cai direto na nota local.
 
 ## Privacidade e governança (LGPD)
 

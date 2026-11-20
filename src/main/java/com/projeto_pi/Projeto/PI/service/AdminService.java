@@ -82,31 +82,26 @@ public class AdminService {
         long pendentes = todos.stream()
                 .filter(u -> u.getPapel() != Papel.ADMIN && u.getStatus() == StatusUsuario.PENDENTE).count();
 
-        List<Mensagem> listaMensagens = mensagens.findAll();
-        List<Agendamento> listaReunioes = agendamentos.findAll();
-
-        Set<String> paresConversa = new HashSet<>();
-        Set<Long> usuariosComConversa = new HashSet<>();
-        for (Mensagem m : listaMensagens) {
-            paresConversa.add(par(m.getRemetente(), m.getDestinatario()));
-            usuariosComConversa.add(m.getRemetente().getId());
-            usuariosComConversa.add(m.getDestinatario().getId());
-        }
-        Set<String> paresReuniao = new HashSet<>();
-        for (Agendamento a : listaReunioes) {
-            paresReuniao.add(par(a.getSolicitante(), a.getDestinatario()));
-        }
-
-        Set<String> conexoes = new HashSet<>(paresConversa);
-        conexoes.addAll(paresReuniao);
-        long aceitas = listaReunioes.stream().filter(a -> a.getStatus() == StatusAgendamento.ACEITO).count();
-
         List<Usuario> startupsAprovadas = todos.stream()
                 .filter(u -> u.getPapel() == Papel.STARTUP && u.getStatus() == StatusUsuario.APROVADO)
                 .toList();
+        long investidoresAprovados = todos.stream()
+                .filter(u -> u.getPapel() == Papel.INVESTIDOR && u.getStatus() == StatusUsuario.APROVADO).count();
+
+        // Só mensagens escritas pelas pessoas contam como conversa: convites de reunião e avisos
+        // automáticos (TipoMensagem.CONVITE/SISTEMA) também ficam na tabela de mensagens.
+        List<Mensagem> textos = mensagens.findAll().stream()
+                .filter(m -> m.getTipo() == null || m.getTipo() == TipoMensagem.TEXTO)
+                .toList();
+        Set<String> conversas = new HashSet<>();
+        Set<Long> usuariosComConversa = new HashSet<>();
+        for (Mensagem m : textos) {
+            conversas.add(m.getConexao() != null ? "c" + m.getConexao().getId() : par(m.getRemetente(), m.getDestinatario()));
+            usuariosComConversa.add(m.getRemetente().getId());
+            usuariosComConversa.add(m.getDestinatario().getId());
+        }
         long startupsComConversa = startupsAprovadas.stream()
                 .filter(u -> usuariosComConversa.contains(u.getId())).count();
-        long conexoesComReuniao = conexoes.stream().filter(paresReuniao::contains).count();
 
         // RF09: "match" é a conexão firmada pela startup depois do pedido do investidor.
         long matches = conexoesRepo.countByStatus(StatusConexao.FIRMADA);
@@ -116,18 +111,31 @@ public class AdminService {
         long pedidos = matches + pendentesDeResposta + negadas;
         long matchesComIa = conexoesRepo.countByStatusAndOrigemAnalise(StatusConexao.FIRMADA, "IA");
 
+        // Reuniões: "convites" são todos os pedidos; "agendadas" são as aceitas.
+        List<Agendamento> convites = agendamentos.findAll();
+        LocalDateTime agora = LocalDateTime.now();
+        long aceitas = convites.stream().filter(a -> a.getStatus() == StatusAgendamento.ACEITO).count();
+        long aguardando = convites.stream().filter(a -> a.getStatus() == StatusAgendamento.PENDENTE
+                && (a.getData() == null || a.getHorario() == null || !a.getData().atTime(a.getHorario()).isBefore(agora)))
+                .count();
+        long matchesComReuniao = convites.stream()
+                .filter(a -> a.getStatus() == StatusAgendamento.ACEITO && a.getConexao() != null
+                        && a.getConexao().getStatus() == StatusConexao.FIRMADA)
+                .map(a -> a.getConexao().getId()).distinct().count();
+
         List<Engajamento> engajamento = List.of(
                 new Engajamento("Recomendações que viraram pedido de conexão", pct(pedidos, pedidos + passadas)),
-                new Engajamento("Pedidos de conexão firmados pelas startups", pct(matches, matches + negadas)),
+                new Engajamento("Pedidos respondidos que viraram match", pct(matches, matches + negadas)),
                 new Engajamento("Startups aprovadas com conversa", pct(startupsComConversa, startupsAprovadas.size())),
-                new Engajamento("Conexões com reunião agendada", pct(conexoesComReuniao, conexoes.size())),
-                new Engajamento("Reuniões aceitas", pct(aceitas, listaReunioes.size())));
+                new Engajamento("Matches com reunião confirmada", pct(matchesComReuniao, matches)),
+                new Engajamento("Convites de reunião aceitos", pct(aceitas, convites.size() - aguardando)));
 
         return new Metricas(startups, startupsNoMes, investidores, investidoresNoMes, pendentes,
-                conexoes.size(), paresConversa.size(), listaMensagens.size(),
-                listaReunioes.size(), aceitas, engajamento,
+                matches, conversas.size(), textos.size(),
+                convites.size(), aceitas, engajamento,
                 matches, pedidos, pendentesDeResposta, passadas, matchesComIa,
-                avaliacoes.count(), avaliacoes.notaMedia());
+                avaliacoes.count(), avaliacoes.notaMedia(),
+                startupsAprovadas.size(), investidoresAprovados, aguardando, matchesComReuniao);
     }
 
     @Transactional(readOnly = true)

@@ -34,8 +34,11 @@ public class ConexaoService {
     private final UsuarioRepository usuarios;
     private final ConexaoRepository conexoes;
     private final AvaliacaoRepository avaliacoes;
+    private final com.projeto_pi.Projeto.PI.repository.FotoPerfilRepository fotos;
 
-    public ConexaoService(UsuarioRepository usuarios, ConexaoRepository conexoes, AvaliacaoRepository avaliacoes) {
+    public ConexaoService(UsuarioRepository usuarios, ConexaoRepository conexoes, AvaliacaoRepository avaliacoes,
+                          com.projeto_pi.Projeto.PI.repository.FotoPerfilRepository fotos) {
+        this.fotos = fotos;
         this.usuarios = usuarios;
         this.conexoes = conexoes;
         this.avaliacoes = avaliacoes;
@@ -58,6 +61,8 @@ public class ConexaoService {
             minhas.put(avaliacao.getConexao().getId(), new Rating(avaliacao.getNota(), avaliacao.getComentario()));
         }
 
+        java.util.Set<Long> comFoto = fotos.comFoto(firmadas.stream()
+                .map(c -> investidor ? c.getStartup().getId() : c.getInvestidor().getId()).toList());
         List<ConnectionItem> itens = new ArrayList<>();
         if (investidor) {
             Map<Long, StartupResumo> startups = new HashMap<>();
@@ -72,7 +77,7 @@ public class ConexaoService {
                         conexao.getId().toString(), s.id().toString(), s.usuarioId(), Formatos.texto(s.nome()),
                         "Startup cadastrada", Formatos.texto(s.cidade()), Formatos.texto(s.uf()),
                         Criterios.lista(s.segmento()), s.ticketMin(), s.ticketMax(),
-                        data(conexao), minhas.get(conexao.getId())));
+                        data(conexao), minhas.get(conexao.getId()), comFoto.contains(s.usuarioId())));
             }
         } else {
             for (Conexao conexao : firmadas) {
@@ -86,7 +91,7 @@ public class ConexaoService {
                         MatchmakingService.nomeDe(perfil, outro), MatchmakingService.papelDe(perfil),
                         Formatos.texto(perfil.getCity()), Formatos.texto(perfil.getState()),
                         Criterios.lista(perfil.getAreasInteresse()), perfil.getTicketMin(), perfil.getTicketMax(),
-                        data(conexao), minhas.get(conexao.getId())));
+                        data(conexao), minhas.get(conexao.getId()), comFoto.contains(outro.getId())));
             }
         }
         return itens;
