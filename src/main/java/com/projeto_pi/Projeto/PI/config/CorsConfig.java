@@ -8,7 +8,7 @@ import org.springframework.web.cors.*;
 public class CorsConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource(
-            @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}") String origins) {
+            @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173, https://vertice-connect.netlify.app}") String origins) {
         var config = new CorsConfiguration();
         config.setAllowedOrigins(java.util.Arrays.stream(origins.split(",")).map(String::trim).toList());
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "OPTIONS"));
