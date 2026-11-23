@@ -189,4 +189,20 @@ class RegressaoTests {
         System.arraycopy(PNG, 0, b, 0, PNG.length);
         return b;
     }
+
+    /**
+     * Outra conta logada em outra aba do mesmo navegador: o token enviado deixa de ser o do investidor.
+     * O servidor recusa com 403 e não altera nenhum perfil.
+     */
+    @Test
+    void anotherAccountsTokenCannotEditInvestorProfile() throws Exception {
+        String corpo = "{\"name\":\"Invadido\",\"segments\":[\"Agritech\"]}";
+        http.perform(put("/perfil/investidor").header("Authorization", st())
+                .contentType(MediaType.APPLICATION_JSON).content(corpo))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("message").value("Acesso não permitido"));
+        http.perform(get("/perfil").header("Authorization", inv()))
+            .andExpect(jsonPath("investor.name").value("Ana"))
+            .andExpect(jsonPath("investor.segments", contains("Fintech")));
+    }
 }

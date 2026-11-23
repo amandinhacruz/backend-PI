@@ -48,7 +48,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/cadastro/**",
                                 "/auth/login",
-                                "/politica-privacidade"
+                                "/politica-privacidade",
+                                // Página interna de erro do Spring: sem esta liberação, qualquer erro
+                                // inesperado chegava ao navegador como 403 "Acesso não permitido".
+                                "/error"
                         ).permitAll()
 
                         .requestMatchers("/admin/**")
