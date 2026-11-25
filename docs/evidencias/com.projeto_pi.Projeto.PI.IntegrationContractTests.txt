@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.projeto_pi.Projeto.PI.IntegrationContractTests
--------------------------------------------------------------------------------
-Tests run: 25, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.44 s -- in com.projeto_pi.Projeto.PI.IntegrationContractTests
