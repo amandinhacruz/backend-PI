@@ -17,6 +17,9 @@ FROM eclipse-temurin:21-jdk
 
 VOLUME /tmp
 
+# Servidor de hospedagem: banco pelas variaveis POSTGRES* (application-prod.properties).
+ENV SPRING_PROFILES_ACTIVE=prod
+
 ARG DEPENDENCY=/workspace/app/target/dependency
 
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib

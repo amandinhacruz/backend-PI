@@ -81,7 +81,7 @@ public class SecurityConfig {
                         .requestMatchers("/perfil", "/perfil/**")
                         .hasAnyRole("STARTUP", "INVESTIDOR")
 
-                        .requestMatchers("/conversas/**", "/reunioes/**")
+                        .requestMatchers("/conversas/**", "/reunioes/**", "/comunidades", "/comunidades/**")
                         .hasAnyRole("STARTUP", "INVESTIDOR")
 
                         .anyRequest()
