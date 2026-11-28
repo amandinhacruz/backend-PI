@@ -75,6 +75,12 @@ public class PerfilController {
         return service.startupPublica(id);
     }
 
+    /** Perfil público de um investidor aprovado (sem CPF, CNPJ e e-mail), pelo id do usuário. */
+    @GetMapping("/investidores/{usuarioId}/perfil")
+    public InvestorProfile investidor(@PathVariable Long usuarioId, Principal usuario) {
+        return service.investidorPublico(usuario.getName(), usuarioId);
+    }
+
     /** Foto de perfil. Só de usuários aprovados, para usuários aprovados (ou a própria). */
     @GetMapping("/usuarios/{id}/foto")
     public ResponseEntity<byte[]> fotoDoUsuario(@PathVariable Long id, Principal usuario) {

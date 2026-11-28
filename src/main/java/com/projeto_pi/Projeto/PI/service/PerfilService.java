@@ -72,6 +72,21 @@ public class PerfilService {
         return startup(usuario, usuario.getStartup(), fotos.existsByUsuarioId(usuario.getId()), false);
     }
 
+    /** Perfil público de um investidor aprovado, visto por outro usuário aprovado (sem CPF, CNPJ e e-mail). */
+    @Transactional(readOnly = true)
+    public InvestorProfile investidorPublico(String email, Long usuarioId) {
+        Usuario leitor = usuarios.findByEmailIgnoreCase(email == null ? "" : email)
+                .orElseThrow(() -> erro(HttpStatus.FORBIDDEN, "Acesso não permitido"));
+        if (leitor.getStatus() != StatusUsuario.APROVADO) {
+            throw erro(HttpStatus.FORBIDDEN, "Acesso não permitido");
+        }
+        Usuario investidor = usuarios.findById(usuarioId)
+                .filter(u -> u.getPapel() == Papel.INVESTIDOR && u.getStatus() == StatusUsuario.APROVADO
+                        && u.getInvestidorMentor() != null)
+                .orElseThrow(() -> erro(HttpStatus.NOT_FOUND, "Investidor não encontrado"));
+        return investidor(investidor, fotos.existsByUsuarioId(investidor.getId()), false);
+    }
+
     /** Foto de um usuário aprovado (ou do próprio usuário, mesmo pendente). */
     @Transactional(readOnly = true)
     public FotoPerfil foto(String email, Long usuarioId) {
